@@ -5,12 +5,11 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 
 interface PaintingCardProps {
   painting: Painting;
-  variant: 'featured' | 'small' | 'centered';
   revealDelay: number;
   onOpen: () => void;
 }
 
-export function PaintingCard({ painting, variant, revealDelay, onOpen }: PaintingCardProps) {
+export function PaintingCard({ painting, revealDelay, onOpen }: PaintingCardProps) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const ref = useScrollReveal<HTMLElement>();
@@ -18,13 +17,15 @@ export function PaintingCard({ painting, variant, revealDelay, onOpen }: Paintin
   return (
     <figure
       ref={ref}
-      className={`painting painting--${variant} reveal`}
+      className="painting reveal"
       style={{ '--reveal-delay': `${revealDelay}ms` } as CSSProperties}
     >
+      {/* No aspect-ratio here: the frame is a fixed square and the painting is
+          contained inside it, matted by the frame's parchment ground — the same
+          treatment the hero rotunda gives its planes. */}
       <button
         type="button"
         className="painting-frame"
-        style={{ aspectRatio: painting.aspectRatio }}
         onClick={onOpen}
         aria-label={`View ${painting.title} larger`}
       >

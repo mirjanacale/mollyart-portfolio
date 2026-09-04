@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Header } from './components/Header';
+import { Hero } from './components/Hero';
 import { Gallery } from './components/Gallery';
 import { Lightbox } from './components/Lightbox';
+import { Divider } from './components/Divider';
 import { ProjectCards } from './components/ProjectCards';
 import { About } from './components/About';
 import { Footer } from './components/Footer';
@@ -14,8 +16,11 @@ export default function App() {
     <div id="top">
       <Header />
       <main>
+        <Hero onOpen={setLightboxIndex} />
         <Gallery onOpen={setLightboxIndex} />
+        <Divider />
         <ProjectCards />
+        <Divider />
         <About />
       </main>
       <Footer />

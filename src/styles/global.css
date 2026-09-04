@@ -7,6 +7,9 @@
   --burgundy-dark: #4c1420;
   --gold: #c9a227;
   --brown: #8a6d3b;
+  /* Deeper brown for small uppercase text: plain --brown lands at 4.24:1 on
+     parchment, just under the 4.5:1 WCAG AA needs at these sizes. */
+  --brown-deep: #6b542b;
   --pink: #d4537e;
   --green: #639922;
   --ink: #2e1c1e;
@@ -30,9 +33,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Paper grain: desaturated fractal noise generated inline, no image file.
+   Tiled at 180px with stitchTiles so there's no visible seam. Felt, not seen. */
 body {
   margin: 0;
-  background: var(--parchment);
+  background-color: var(--parchment);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23paper)' opacity='0.06'/%3E%3C/svg%3E");
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1.0625rem;
@@ -84,7 +90,7 @@ section {
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--brown);
+  color: var(--brown-deep);
   margin-bottom: 0.5rem;
 }
 
@@ -127,7 +133,10 @@ section {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.25rem 1.5rem;
-  padding: 0.75rem 1.5rem;
+  /* Bar spans the window, but the wordmark and nav sit on the same left and
+     right edges as `main`'s 1280px column — otherwise past 1328px the wordmark
+     drifts out to the window edge while the gallery below it starts 70px+ in. */
+  padding: 0.75rem max(1.5rem, calc((100% - var(--content-width)) / 2 + 1.5rem));
   background: var(--parchment);
   border-bottom: 1px solid color-mix(in srgb, var(--brown) 25%, transparent);
 }
@@ -171,41 +180,266 @@ section {
   border-radius: 2px;
 }
 
+/* Tighter metrics so all four items hold one row at 375px and the sticky
+   header stops eating a quarter of the screen. min-height keeps the tap target. */
+@media (max-width: 767px) {
+  .site-header nav a {
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* ---------- Section divider ---------- */
+
+.divider {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+
+/* ---------- Hero rotunda ---------- */
+
+/* Sits below the sticky header (z-index 10) so the 3D ring can't punch through it. */
+.hero {
+  position: relative;
+  z-index: 0;
+  padding: 2rem 0 1.5rem;
+  text-align: center;
+}
+
+/* Radius tracks 0.75 of the plane width. Any wider and the neighbouring
+   canvases fly apart into edge-on slivers instead of crowding the centre one;
+   any narrower and they stack up behind the front painting. Every breakpoint
+   below sets --plane-width and lets the radius, mat and height follow. */
+.wall-stage {
+  --plane-width: 180px;
+  --wall-radius: calc(var(--plane-width) * 0.75);
+  --mat: 8px;
+  position: relative;
+  height: 240px;
+  perspective: 900px;
+  perspective-origin: 50% 46%;
+  overflow: hidden;
+  cursor: grab;
+  /* Horizontal drags rotate the wall; vertical ones still scroll the page. */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.wall-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.wall-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* Pulled back by the radius so the front painting sits at true size. */
+  transform: translateZ(calc(var(--wall-radius) * -1)) rotateY(var(--wall-angle, 0deg));
+}
+
+.wall-ring.is-snapping {
+  transition: transform 480ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Every frame is the same square regardless of the painting's proportions —
+   the work sits inside on a parchment mount rather than setting the size. */
+.wall-plane {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--plane-width);
+  aspect-ratio: 1;
+  padding: var(--mat);
+  border: none;
+  background: var(--parchment);
+  cursor: pointer;
+  backface-visibility: hidden;
+  box-shadow:
+    0 1px 3px rgba(46, 28, 30, 0.22),
+    0 12px 30px rgba(46, 28, 30, 0.18);
+  transform: translate(-50%, -50%) rotateY(var(--plane-angle, 0deg))
+    translateZ(var(--wall-radius)) scale(var(--plane-scale, 1));
+  transition: transform 400ms ease-out;
+}
+
+.wall-plane img,
+.wall-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wall-plane img {
+  filter: brightness(0.92);
+  transition: filter 400ms ease-out;
+}
+
+.wall-plane.is-front {
+  --plane-scale: 1.08;
+  outline: 2px solid var(--gold);
+  outline-offset: 5px;
+}
+
+.wall-plane.is-front img {
+  filter: none;
+}
+
+.wall-plane:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 6px;
+}
+
+/* Missing image: the plane keeps its footprint instead of collapsing the ring. */
+.wall-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: var(--burgundy);
+  color: var(--parchment);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.25;
+}
+
+.wall-hint {
+  margin: 1.4rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brown-deep);
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 0.4rem;
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold);
+}
+
+.hero-cta:hover {
+  color: var(--burgundy-dark);
+}
+
+.hero-cta:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Reduced-motion fallback layout: a plain sideways row, no rotation. */
+.wall-static {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+}
+
+.wall-static .wall-plane {
+  position: static;
+  flex: 0 0 auto;
+  width: 150px;
+  transform: none;
+  scroll-snap-align: center;
+}
+
+/* From here up the rotunda is the whole hero, so the stage breaks out of the
+   1280px column to the full width of `main`'s border box. Stated as the column
+   padding rather than 100vw, which would count the scrollbar and overflow. */
+@media (min-width: 768px) {
+  .wall-stage {
+    --plane-width: min(450px, 62vh);
+    --mat: calc(var(--plane-width) * 0.032);
+    /* The front plane is scaled 1.08, and a half-turned one leans its near edge
+       in front of z:0, where perspective magnifies it another ~7%. 1.16 covers
+       both; the rem on top clears the outline. Measured over a full turn. */
+    height: calc(var(--plane-width) * 1.16 + 1.25rem);
+    width: calc(100% + 3rem);
+    margin-inline: -1.5rem;
+    perspective: 1200px;
+  }
+
+  .wall-static .wall-plane {
+    width: 200px;
+  }
+}
+
+/* The 62vh ceiling on --plane-width is what keeps these px caps honest: on a
+   short laptop the planes shrink with the viewport, so the stage settles around
+   three quarters of the screen instead of running off the bottom of it. */
+@media (min-width: 1024px) {
+  .wall-stage {
+    --plane-width: min(600px, 62vh);
+    perspective: 1500px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .wall-stage {
+    --plane-width: min(700px, 62vh);
+    perspective: 1800px;
+  }
+}
+
+/* Belt and braces: the JS renders the static row, and this flattens any 3D. */
+@media (prefers-reduced-motion: reduce) {
+  .wall-stage {
+    perspective: none;
+    overflow: visible;
+    height: auto;
+    cursor: default;
+    /* Undo the desktop full-bleed breakout too, so a flattened stage sits back
+       inside the column like every other section. */
+    width: auto;
+    margin-inline: 0;
+  }
+
+  .wall-ring,
+  .wall-plane {
+    transform: none;
+    transform-style: flat;
+    transition: none;
+  }
+
+  .wall-plane img {
+    transition: none;
+  }
+}
+
 /* ---------- Gallery wall ---------- */
 
+/* Every painting gets an identical square tile — no work is given more room
+   than another. One column, then two, then three; the tiles simply get wider. */
 .gallery-wall {
   display: grid;
   grid-template-columns: 1fr;
   gap: 3.25rem 2.25rem;
-  align-items: end;
 }
 
 @media (min-width: 768px) {
   .gallery-wall {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .painting--featured {
-    grid-column: span 2;
-  }
 }
 
+/* Desktop adds the third column and widens the breathing room. */
 @media (min-width: 1024px) {
   .gallery-wall {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 4rem 2.5rem;
-  }
-
-  .painting--featured {
-    grid-column: span 4;
-  }
-
-  .painting--small {
-    grid-column: span 2;
-  }
-
-  .painting--centered {
-    grid-column: 3 / span 2;
   }
 }
 
@@ -213,10 +447,13 @@ section {
   margin: 0;
 }
 
+/* Fixed square regardless of the painting's proportions: the work is contained
+   inside on a parchment mount rather than setting the tile's shape. */
 .painting-frame {
   display: block;
   width: 100%;
-  padding: 0;
+  aspect-ratio: 1;
+  padding: 1rem;
   border: none;
   background: var(--parchment-deep);
   cursor: zoom-in;
@@ -233,7 +470,7 @@ section {
 .painting-frame img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 0;
   transition: opacity 400ms ease-out;
 }
@@ -275,7 +512,7 @@ section {
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--brown);
+  color: var(--brown-deep);
 }
 
 .painting-title {
@@ -301,7 +538,7 @@ section {
   align-items: center;
   justify-content: center;
   padding: 3.5rem 1rem 1.5rem;
-  background: rgba(24, 10, 13, 0.93);
+  background: rgba(24, 10, 13, 0.97);
 }
 
 .lightbox-figure {
@@ -333,10 +570,29 @@ section {
   flex-direction: column;
 }
 
+/* Museum label: same treatment as the card-front overline, lifted for the dark ground. */
+.lightbox-overline {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
 .lightbox-title {
   font-family: var(--font-display);
   font-size: 1.7rem;
   line-height: 1.2;
+}
+
+.lightbox-description {
+  max-width: 52ch;
+  margin-top: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--parchment) 82%, transparent);
 }
 
 .lightbox-year {

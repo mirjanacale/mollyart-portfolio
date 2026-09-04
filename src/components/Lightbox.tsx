@@ -88,8 +88,12 @@ export function Lightbox({ paintings, index, onClose, onNavigate }: LightboxProp
         />
         <figcaption>
           <div className="lightbox-caption-text">
+            <span className="lightbox-overline">
+              {painting.medium} · {painting.size}
+            </span>
             <span className="lightbox-title">{painting.title}</span>
             <span className="lightbox-year">{painting.year}</span>
+            <span className="lightbox-description">{painting.description}</span>
             {showFullFailed && (
               <span className="lightbox-note">Image unavailable at full size</span>
             )}

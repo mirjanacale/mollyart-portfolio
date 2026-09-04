@@ -5,17 +5,7 @@ interface GalleryProps {
   onOpen: (index: number) => void;
 }
 
-// The wall repeats a 5-painting group: one featured work beside a smaller one,
-// then a row of three. A lone painting starting the final row gets centered.
-function variantFor(index: number, lastIndex: number): 'featured' | 'small' | 'centered' {
-  if (index % 5 === 0) return 'featured';
-  if (index === lastIndex && index % 5 === 2) return 'centered';
-  return 'small';
-}
-
 export function Gallery({ onOpen }: GalleryProps) {
-  const lastIndex = paintings.length - 1;
-
   return (
     <section id="paintings" className="gallery">
       <div className="section-heading">
@@ -27,8 +17,8 @@ export function Gallery({ onOpen }: GalleryProps) {
           <PaintingCard
             key={painting.id}
             painting={painting}
-            variant={variantFor(i, lastIndex)}
-            revealDelay={(i % 5) * 80}
+            // Staggered across a row; three columns is the widest the grid gets.
+            revealDelay={(i % 3) * 80}
             onOpen={() => onOpen(i)}
           />
         ))}

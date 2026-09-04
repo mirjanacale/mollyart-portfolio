@@ -7,7 +7,7 @@ export function Header() {
         MollyArt
       </a>
       <nav aria-label="Main">
-        <a href="#paintings">Paintings</a>
+        <a href="#paintings">Gallery</a>
         <a href={MOLLAVIE_URL} target="_blank" rel="noopener noreferrer">
           Shop
         </a>
