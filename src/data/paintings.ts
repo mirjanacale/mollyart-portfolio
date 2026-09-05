@@ -17,7 +17,7 @@ export interface Painting {
       gallery tiles are square and contain the image, so it drives no layout. */
   aspectRatio: string;
   mollavieUrl?: string;
-  /** Hangs on the rotating hero wall. Exactly five works are marked. */
+  /** Hangs on the rotating hero wall. All seven works are currently marked. */
   featuredInHero?: boolean;
 }
 
@@ -79,6 +79,7 @@ export const paintings: Painting[] = [
     fullSrc: '/paintings/blue-whisper-full.jpg',
     aspectRatio: '1600 / 1333',
     mollavieUrl: `${MOLLAVIE_ARTWORK}/13/`,
+    featuredInHero: true,
   },
   {
     id: 'one',
@@ -117,8 +118,10 @@ export const paintings: Painting[] = [
     fullSrc: '/paintings/eyes-of-the-wild-full.jpg',
     aspectRatio: '3 / 2',
     mollavieUrl: `${MOLLAVIE_ARTWORK}/7/`,
+    featuredInHero: true,
   },
 ];
 
-/** The five works on the hero rotunda, in wall order. */
+/** The works on the hero rotunda, in wall order. The ring derives its angular
+    step from this length, so adding or removing one respaces it automatically. */
 export const heroPaintings: Painting[] = paintings.filter((p) => p.featuredInHero);
