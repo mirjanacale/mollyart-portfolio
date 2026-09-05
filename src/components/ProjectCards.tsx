@@ -14,6 +14,7 @@ function ProjectCard({ project }: { project: Project }) {
           src={project.imageSrc}
           alt=""
           loading="lazy"
+          style={project.imagePosition ? { objectPosition: project.imagePosition } : undefined}
           onError={() => {
             setImageFailed(true);
             if (import.meta.env.DEV) {
