@@ -19,27 +19,28 @@ export const projects: Project[] = [
     imageSrc: '/projects/mollavie.webp',
   },
   {
-    // TODO(Mirjana): app store / web link + screenshot + real one-liner
+    // TODO(Mirjana): screenshot
     id: 'mollyfinishart',
     name: 'MollyFinishArt',
-    tagline: 'A creative app by Molly.',
-    url: null,
+    tagline:
+      'AI art coaching app — chatbot art teacher, idea generator, project management, and community for artists.',
+    url: 'https://play.google.com/store/apps/details?id=app.lovable.mollyfinishart&pcampaignid=web_share',
     imageSrc: null,
   },
   {
-    // TODO(Mirjana): app store / web link + screenshot + real one-liner
+    // TODO(Mirjana): screenshot
     id: 'mollycolor',
     name: 'MollyColor',
-    tagline: 'A colouring app by Molly.',
-    url: null,
+    tagline: 'A live colour tool for artists and designers.',
+    url: 'https://play.google.com/store/apps/details?id=com.lovable.mollydragonepaletteapp&pcampaignid=web_share',
     imageSrc: null,
   },
   {
-    // TODO(Mirjana): link to the developer portfolio + screenshot
+    // TODO(Mirjana): screenshot
     id: 'developer-work',
     name: 'Developer work',
     tagline: "Mirjana's software development portfolio.",
-    url: null,
+    url: 'https://mirjana-cale-portfolio.vercel.app/index.html#projects',
     imageSrc: null,
   },
 ];
