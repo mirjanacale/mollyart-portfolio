@@ -728,13 +728,25 @@ section {
 .project-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(107, 31, 46, 0.25) 0%, rgba(46, 12, 18, 0.82) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(15, 8, 12, 0) 0%,
+    rgba(15, 8, 12, 0) 45%,
+    rgba(15, 8, 12, 0.62) 70%,
+    rgba(15, 8, 12, 0.88) 100%
+  );
   transition: background 250ms ease-out;
 }
 
 .project-card:hover .project-overlay,
 .project-card:focus-visible .project-overlay {
-  background: linear-gradient(180deg, rgba(107, 31, 46, 0.1) 0%, rgba(46, 12, 18, 0.66) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(15, 8, 12, 0) 0%,
+    rgba(15, 8, 12, 0) 45%,
+    rgba(15, 8, 12, 0.48) 70%,
+    rgba(15, 8, 12, 0.72) 100%
+  );
 }
 
 .project-card:focus-visible {
